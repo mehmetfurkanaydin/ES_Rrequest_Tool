@@ -11,6 +11,9 @@ public class MainWindow {
     private JTextField textField1;
     private JTextField textField3;
     private JTextField textField4;
+    private JComboBox comboBox1;
+    private JButton sendButton;
+    private JTextArea textArea2;
 
     public static void main(String[] args) {
 
