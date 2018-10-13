@@ -113,12 +113,17 @@ public class MainWindow {
         String requestType = getRequestType().getSelectedItem().toString();
         ESRestHighLevelClient esRestHighLevelClient = new ESRestHighLevelClient();
         esRestHighLevelClient.createNewClient(getHostnameField().getText(), Integer.parseInt(getPortField().getText()), getSchemeField().getText());
+        String response = "";
 
         switch (requestType) {
             case "INDEX":
-                String response = esRestHighLevelClient.sendIndexRequest(getIndexField().getText(), getTypeField().getText(), getIdField().getText(), getSourceField().getText());
-                getResponseField().append(response);
+                response = esRestHighLevelClient.sendIndexRequest(getIndexField().getText(), getTypeField().getText(), getIdField().getText(), getSourceField().getText());
+                getResponseField().setText(response);
                 break;
+            case "GET":
+                response = esRestHighLevelClient.sendGetRequest(getIndexField().getText(), getTypeField().getText(), getIdField().getText());
+                getResponseField().setText(response);
+
         }
 
     }
