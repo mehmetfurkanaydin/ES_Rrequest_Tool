@@ -1,7 +1,13 @@
 package com.mfa.estool;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import org.apache.http.HttpHost;
 import org.elasticsearch.action.ActionListener;
+import org.elasticsearch.action.get.GetRequest;
+import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.RequestOptions;
@@ -52,6 +58,32 @@ public class ESRestHighLevelClient {
         return indexResponse.getResult().toString();
     }
 
+    public String sendGetRequest(String index, String type, String id) {
+        GetRequest getRequest = new GetRequest(
+                index,
+                type,
+                id);
+
+        GetResponse getResponse = null;
+        try {
+            getResponse = client.get(getRequest, RequestOptions.DEFAULT);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+        if (getResponse.isExists()) {
+            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+            JsonParser jp = new JsonParser();
+            JsonElement je = jp.parse(getResponse.getSourceAsString());
+            String prettyJsonString = gson.toJson(je);
+
+            return prettyJsonString;
+        } else {
+            String notFoundText= "Not Found";
+            return notFoundText;
+        }
+    }
     public void clientClose() {
         try {
             getClient().close();
