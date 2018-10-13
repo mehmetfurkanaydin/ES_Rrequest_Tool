@@ -2,18 +2,22 @@ package com.mfa.estool;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 public class MainWindow {
 
     private JPanel MainPanel;
     private JTextArea responseField;
-    private JTextField urlField;
+    private JTextField hostnameField;
     private JTextField indexField;
     private JTextField typeField;
     private JTextField idField;
     private JComboBox requestType;
     private JButton sendRequest;
     private JTextArea sourceField;
+    private JTextField portField;
+    private JTextField schemeField;
 
     public JTextArea getResponseField() {
         return responseField;
@@ -23,12 +27,12 @@ public class MainWindow {
         this.responseField = responseField;
     }
 
-    public JTextField getUrlField() {
-        return urlField;
+    public JTextField getHostnameField() {
+        return hostnameField;
     }
 
-    public void setUrlField(JTextField urlField) {
-        this.urlField = urlField;
+    public void setHostnameField(JTextField hostnameField) {
+        this.hostnameField = hostnameField;
     }
 
     public JTextField getIndexField() {
@@ -50,6 +54,23 @@ public class MainWindow {
     public JTextField getIdField() {
         return idField;
     }
+
+    public JTextField getPortField() {
+        return portField;
+    }
+
+    public void setPortField(JTextField portField) {
+        this.portField = portField;
+    }
+
+    public JTextField getSchemeField() {
+        return schemeField;
+    }
+
+    public void setSchemeField(JTextField schemeField) {
+        this.schemeField = schemeField;
+    }
+
 
     public void setIdField(JTextField idField) {
         this.idField = idField;
@@ -80,17 +101,33 @@ public class MainWindow {
     }
 
     public void fillRequestTypes (MainWindow mainWindow) {
+        mainWindow.getRequestType().addItem("INDEX");
         mainWindow.getRequestType().addItem("GET");
-        mainWindow.getRequestType().addItem("POST");
+        mainWindow.getRequestType().addItem("EXISTS");
         mainWindow.getRequestType().addItem("DELETE");
-        mainWindow.getRequestType().addItem("PATCH");
-        mainWindow.getRequestType().addItem("PUT");
+        mainWindow.getRequestType().addItem("UPDATE");
+    }
+
+
+    public void sendRequest () {
+        String requestType = getRequestType().getSelectedItem().toString();
+        ESRestHighLevelClient esRestHighLevelClient = new ESRestHighLevelClient();
+        esRestHighLevelClient.createNewClient(getHostnameField().getText(), Integer.parseInt(getPortField().getText()), getSchemeField().getText());
+
+        switch (requestType) {
+            case "INDEX":
+                String response = esRestHighLevelClient.sendIndexRequest(getIndexField().getText(), getTypeField().getText(), getIdField().getText(), getSourceField().getText());
+                getResponseField().append(response);
+                break;
+        }
+
     }
 
     public static void main(String[] args) {
 
         JFrame frame = new JFrame("ES Tool");
-        MainWindow mainWindow = new MainWindow();
+        final MainWindow mainWindow = new MainWindow();
+        final ESRestHighLevelClient esRestHighLevelClient = new ESRestHighLevelClient();
         frame.setPreferredSize(new Dimension(800, 1000));
         frame.setContentPane(mainWindow.MainPanel);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -98,6 +135,14 @@ public class MainWindow {
         frame.setVisible(true);
 
         mainWindow.fillRequestTypes(mainWindow);
+
+        mainWindow.getSendRequest().addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                mainWindow.sendRequest();
+            }
+        });
     }
 
 }
